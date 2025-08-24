@@ -1,5 +1,6 @@
 name: Auto approve
 
+# Use pull_request_target for security when approving external PRs
 on: 
   pull_request_target:
 
@@ -8,5 +9,12 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+    # Only run for non-draft PRs to avoid approving incomplete work
+    if: github.event.pull_request.draft == false
     steps:
-      - uses: hmarr/auto-approve-action@v4
+      - name: Auto approve pull request
+        uses: hmarr/auto-approve-action@v4
+        # Note: This workflow will only successfully approve PRs when:
+        # 1. The PR is from an external contributor (not repo owner/org members)
+        # 2. Or when configured with a personal access token instead of GITHUB_TOKEN
+        # GitHub prevents the default GITHUB_TOKEN from approving PRs created by the same user/org
